@@ -1,20 +1,28 @@
 import tkinter as tk
 import buscar_functions
+import time, threading
+
+#Configs
+testar = True
 
 def buscar_button_action():
-    ingredientes = ingredientes_entry.get()
-    tempo = int(tempo_entry.get())
-
-    ingr_list_input = ingredientes.split(',')
-    ingr_list_input = [e.strip() for e in ingr_list_input]
-
-    results = buscar_functions.buscar_receitas_for(ingr_list_input, tempo)
 
     #Limpar caixa de resultados
     result_text.configure(state=tk.NORMAL)
     result_text.delete(1.0, tk.END)
 
-    print(len(results))
+    ingredientes = ingredientes_entry.get()
+    ingr_list_input = ingredientes.split(',')
+    ingr_list_input = [e.strip() for e in ingr_list_input]
+
+    tempo = tempo_entry.get()
+
+    try:
+        tempo = int(tempo)
+    except:
+        return
+
+    results = buscar_functions.buscar_receitas_for(ingr_list_input, tempo)
 
     for result in results:
         receita_index = result['recipe']
@@ -91,5 +99,34 @@ result_text.tag_config('ok', foreground="green")
 result_text.tag_config('bold', font=('Helvetica', 10, 'bold'))
 result_text.tag_config('bold2', font=('Helvetica', 11, 'bold'))
 
+#Funções de Teste
+
+def testar_valor (input, output):
+    if input != output:
+        print(f"Teste falhou. {input} é diferente de {output}")
+        return
+    
+    print("Teste passou")
+
+def testar_output_do_botao_buscar():
+
+    # Teste com input vazio
+    ingredientes_entry.delete(0, tk.END)
+    tempo_entry.delete(0, tk.END)
+    buscar_button.invoke()
+
+    testar_valor(result_text.get(1.0, 'end-1c'), "")
+
+    # Teste com tempo invalido
+    ingredientes_entry.insert(0, "ingrediente1, ingrediente2, ingrediente3")
+    tempo_entry.insert(0, "invalido")
+    buscar_button.invoke()
+
+    testar_valor(result_text.get(1.0, 'end-1c'), "")
+
+    window.destroy()
+
+if testar:
+    threading.Timer(1, testar_output_do_botao_buscar).start()
 
 window.mainloop()
